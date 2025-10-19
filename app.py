@@ -124,23 +124,11 @@ def home():
         if connection:
             try:
                 with connection.cursor() as cursor:
-                    # Insert coupon
-                    cursor.execute(
-                        'INSERT IGNORE INTO coupons (coupon_code) VALUES (%s)',
-                        (coupon,)
-                    )
-                    
-                    # Log generation
+                    cursor.execute('INSERT IGNORE INTO coupons (coupon_code) VALUES (%s)', (coupon,))
                     ip_address = request.remote_addr or 'unknown'
-                    cursor.execute(
-                        'INSERT INTO usage_logs (coupon_code, ip_address) VALUES (%s, %s)',
-                        (coupon, ip_address)
-                    )
-                    
+                    cursor.execute('INSERT INTO usage_logs (coupon_code, ip_address) VALUES (%s, %s)', (coupon, ip_address))
                 connection.commit()
-                print("✅ Coupon stored in database")
                 db_message = "Coupon stored successfully"
-                
             except Exception as e:
                 print(f"⚠️ Failed to store coupon: {e}")
                 db_status = "error"
@@ -150,91 +138,91 @@ def home():
         else:
             print(f"⚠️ Running without database storage: {db_message}")
         
-        # Render template
         return render_template('index.html', 
                              coupon=coupon, 
                              db_status=db_status,
                              db_message=db_message,
                              status="generated")
-        
+
     except Exception as e:
         print(f"💥 Critical error in home route: {e}")
         print(traceback.format_exc())
-        # Fallback response
-return f"""
-<html>
-<head>
-    <title>Coupon Generator</title>
-    <style>
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 50px;
-            text-align: center;
-            color: #333;
-        }}
-        .card {{
-            background-color: #ffffff;
-            padding: 30px;
-            margin: auto;
-            max-width: 500px;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }}
-        .coupon-box {{
-            background-color: #00897B;
-            color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }}
-        .coupon-code {{
-            font-size: 2em;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }}
-        .button {{
-            padding: 12px 25px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-        }}
-        .button:hover {{
-            background-color: #0056b3;
-        }}
-        .nav-links a {{
-            margin: 0 10px;
-            color: #007BFF;
-            text-decoration: none;
-        }}
-        .nav-links a:hover {{
-            text-decoration: underline;
-        }}
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>🎫 Coupon Generator</h1>
-        <div class="coupon-box">
-            <h2>Your Coupon:</h2>
-            <div class="coupon-code">{coupon}</div>
-        </div>
-        <p>Database Status: <strong>{db_status}</strong></p>
-        <p>Message: {db_message}</p>
-        <button class="button" onclick="window.location.reload()">🔄 Generate New Coupon</button>
-        <div class="nav-links" style="margin-top: 20px;">
-            <a href="/stats">📊 Statistics</a>
-            <a href="/health">❤️ Health Check</a>
-            <a href="/debug">🐛 Debug Info</a>
-        </div>
-    </div>
-</body>
-</html>
-"""
+        
+        # Properly INDENT the fallback response here
+        return f"""
+        <html>
+        <head>
+            <title>Coupon Generator</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background-color: #f0f4f8;
+                    margin: 0;
+                    padding: 50px;
+                    text-align: center;
+                    color: #333;
+                }}
+                .card {{
+                    background-color: #ffffff;
+                    padding: 30px;
+                    margin: auto;
+                    max-width: 500px;
+                    border-radius: 15px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }}
+                .coupon-box {{
+                    background-color: #00897B;
+                    color: #ffffff;
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin: 20px 0;
+                }}
+                .coupon-code {{
+                    font-size: 2em;
+                    font-weight: bold;
+                    letter-spacing: 1px;
+                }}
+                .button {{
+                    padding: 12px 25px;
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 1em;
+                }}
+                .button:hover {{
+                    background-color: #0056b3;
+                }}
+                .nav-links a {{
+                    margin: 0 10px;
+                    color: #007BFF;
+                    text-decoration: none;
+                }}
+                .nav-links a:hover {{
+                    text-decoration: underline;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1>🎫 Coupon Generator</h1>
+                <div class="coupon-box">
+                    <h2>Your Coupon:</h2>
+                    <div class="coupon-code">{coupon}</div>
+                </div>
+                <p>Database Status: <strong>{db_status}</strong></p>
+                <p>Message: {db_message}</p>
+                <button class="button" onclick="window.location.reload()">🔄 Generate New Coupon</button>
+                <div class="nav-links" style="margin-top: 20px;">
+                    <a href="/stats">📊 Statistics</a>
+                    <a href="/health">❤️ Health Check</a>
+                    <a href="/debug">🐛 Debug Info</a>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
 
 @app.route('/generate')
 def generate_coupon():
